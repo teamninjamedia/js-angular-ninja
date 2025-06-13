@@ -4,13 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Contador Angular</title>
-  <!-- Polyfills y Dependencias UMD -->
-  <script src="https://unpkg.com/zone.js/dist/zone.min.js"></script>
-  <script src="https://unpkg.com/reflect-metadata@0.1.13/Reflect.js"></script>
-  <script src="https://unpkg.com/rxjs/bundles/rxjs.umd.min.js"></script>
-  <!-- Angular UMD Bundles -->
+  <!-- Zone.js y bundles de Angular UMD -->
+  <script src="https://unpkg.com/zone.js"></script>
   <script src="https://unpkg.com/@angular/core@14/bundles/core.umd.min.js"></script>
-  <script src="https://unpkg.com/@angular/common@14/bundles/common.umd.min.js"></script>
   <script src="https://unpkg.com/@angular/platform-browser@14/bundles/platform-browser.umd.min.js"></script>
   <script src="https://unpkg.com/@angular/platform-browser-dynamic@14/bundles/platform-browser-dynamic.umd.min.js"></script>
 </head>
@@ -19,26 +15,19 @@
 
   <script>
     (function(ng) {
-      // Componente principal con contador
+      // Componente contador en Angular (UMD/JIT en el navegador)
       const AppComponent = ng.core.Component({
         selector: 'app-root',
         template: `
-          <div style="text-align:center; margin-top:50px; font-family: sans-serif;">
+          <div style="text-align:center; margin-top:50px; font-family:sans-serif;">
             <h1>Contador: {{ count }}</h1>
-            <button (click)="increment()" style="padding: 8px 16px; margin-right: 8px;">Incrementar</button>
-            <button (click)="decrement()" style="padding: 8px 16px;">Decrementar</button>
+            <button (click)="count = count + 1" style="padding:8px 16px; margin-right:8px;">Incrementar</button>
+            <button (click)="count = count - 1" style="padding:8px 16px;">Decrementar</button>
           </div>
         `
-      })
-      .Class({
+      }).Class({
         constructor: function() {
           this.count = 0;
-        },
-        increment: function() {
-          this.count++;
-        },
-        decrement: function() {
-          this.count--;
         }
       });
 
@@ -47,10 +36,9 @@
         imports: [ng.platformBrowser.BrowserModule],
         declarations: [AppComponent],
         bootstrap: [AppComponent]
-      })
-      .Class({ constructor: function() {} });
+      }).Class({ constructor: function() {} });
 
-      // Arrancar Angular
+      // Bootstrap de Angular
       ng.platformBrowserDynamic.platformBrowserDynamic()
         .bootstrapModule(AppModule)
         .catch(err => console.error(err));
