@@ -1,28 +1,37 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contador Angular</title>
-  <!-- Zone.js y bundles de Angular UMD -->
-  <script src="https://unpkg.com/zone.js"></script>
-  <script src="https://unpkg.com/@angular/core@14/bundles/core.umd.min.js"></script>
-  <script src="https://unpkg.com/@angular/platform-browser@14/bundles/platform-browser.umd.min.js"></script>
-  <script src="https://unpkg.com/@angular/platform-browser-dynamic@14/bundles/platform-browser-dynamic.umd.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Angular 2 Contador</title>
+  <script src="https://unpkg.com/core-js/client/shim.min.js"></script>
+  <script src="https://unpkg.com/zone.js/dist/zone.min.js"></script>
+  <script src="https://unpkg.com/reflect-metadata/Reflect.js"></script>
+  <script src="https://unpkg.com/systemjs/dist/system.src.js"></script>
+
+  <!-- Angular 2 UMD Bundles -->
+  <script src="https://unpkg.com/@angular/core@2.4.10/bundles/core.umd.js"></script>
+  <script src="https://unpkg.com/@angular/common@2.4.10/bundles/common.umd.js"></script>
+  <script src="https://unpkg.com/@angular/compiler@2.4.10/bundles/compiler.umd.js"></script>
+  <script src="https://unpkg.com/@angular/platform-browser@2.4.10/bundles/platform-browser.umd.js"></script>
+  <script src="https://unpkg.com/@angular/platform-browser-dynamic@2.4.10/bundles/platform-browser-dynamic.umd.js"></script>
 </head>
 <body>
-  <app-root></app-root>
+  <my-app>Loading...</my-app>
 
   <script>
     (function(ng) {
-      // Componente contador en Angular (UMD/JIT en el navegador)
-      const AppComponent = ng.core.Component({
-        selector: 'app-root',
+      const { Component, NgModule } = ng.core;
+      const { BrowserModule } = ng.platformBrowser;
+      const { platformBrowserDynamic } = ng.platformBrowserDynamic;
+
+      // Componente de contador
+      const AppComponent = Component({
+        selector: 'my-app',
         template: `
-          <div style="text-align:center; margin-top:50px; font-family:sans-serif;">
-            <h1>Contador: {{ count }}</h1>
-            <button (click)="count = count + 1" style="padding:8px 16px; margin-right:8px;">Incrementar</button>
-            <button (click)="count = count - 1" style="padding:8px 16px;">Decrementar</button>
+          <div style="text-align:center; font-family:sans-serif; margin-top: 50px;">
+            <h1>Angular 2 Contador</h1>
+            <p>Contador: {{ count }}</p>
+            <button (click)="count = count + 1">Incrementar</button>
           </div>
         `
       }).Class({
@@ -32,16 +41,17 @@
       });
 
       // Módulo de la aplicación
-      const AppModule = ng.core.NgModule({
-        imports: [ng.platformBrowser.BrowserModule],
+      const AppModule = NgModule({
+        imports: [BrowserModule],
         declarations: [AppComponent],
         bootstrap: [AppComponent]
-      }).Class({ constructor: function() {} });
+      }).Class({
+        constructor: function() {}
+      });
 
-      // Bootstrap de Angular
-      ng.platformBrowserDynamic.platformBrowserDynamic()
-        .bootstrapModule(AppModule)
-        .catch(err => console.error(err));
+      // Bootstrap de Angular 2
+      platformBrowserDynamic().bootstrapModule(AppModule);
+
     })(window.ng);
   </script>
 </body>
