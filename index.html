@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kaleidoscopio Angular</title>
+  <!-- Zone.js y Angular UMD Bundles -->
+  <script src="https://unpkg.com/zone.js"></script>
+  <script src="https://unpkg.com/@angular/core/bundles/core.umd.js"></script>
+  <script src="https://unpkg.com/@angular/common/bundles/common.umd.js"></script>
+  <script src="https://unpkg.com/@angular/compiler/bundles/compiler.umd.js"></script>
+  <script src="https://unpkg.com/@angular/platform-browser/bundles/platform-browser.umd.js"></script>
+  <script src="https://unpkg.com/@angular/platform-browser-dynamic/bundles/platform-browser-dynamic.umd.js"></script>
+  <script src="https://unpkg.com/rxjs/bundles/rxjs.umd.js"></script>
+  <style>
+    body, html { margin: 0; padding: 0; overflow: hidden; }
+    canvas { display: block; width: 100%; height: 100%; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <app-root style="position: absolute; inset: 0;"></app-root>
+
+  <script>
+    (function(ng) {
+      const { Component, NgModule, ElementRef, ViewChild, AfterViewInit, HostListener } = ng.core;
+      const { BrowserModule } = ng.platformBrowser;
+      const { platformBrowserDynamic } = ng.platformBrowserDynamic;
+
+      @Component({
+        selector: 'app-root',
+        template: `<canvas #canvas (click)="regenerate()"></canvas>`,
+      })
+      class AppComponent extends AfterViewInit {
+        constructor() {
+          super();
+          this.animationId = null;
+          this.ctx = null;
+          this.w = 0;
+          this.h = 0;
+        }
+        @ViewChild('canvas', { static: true }) canvasRef;
+
+        ngAfterViewInit() {
+          const canvas = this.canvasRef.nativeElement;
+          this.ctx = canvas.getContext('2d');
+          this.resize();
+          this.draw(0);
+        }
+
+        @HostListener('window:resize')
+        resize() {
+          const canvas = this.canvasRef.nativeElement;
+          this.w = canvas.width = window.innerWidth;
+          this.h = canvas.height = window.innerHeight;
+        }
+
+        draw(t) {
+          if (!this.ctx) return;
+          // Fondo dinámico
+          this.ctx.fillStyle = `hsl(${(t * 0.01) % 360}, 50%, 15%)`;
+          this.ctx.fillRect(0, 0, this.w, this.h);
+
+          const segments = 16;
+          const angle = (2 * Math.PI) / segments;
+          const radius = Math.min(this.w, this.h) / 2;
+
+          for (let i = 0; i < segments; i++) {
+            this.ctx.save();
+            this.ctx.translate(this.w / 2, this.h / 2);
+            this.ctx.rotate(i * angle + t * 0.0003);
+
+            this.ctx.beginPath();
+            for (let j = 0; j < 6; j++) {
+              const theta = (j / 6) * Math.PI * 2;
+              const r = radius * (0.3 + 0.7 * Math.sin(t * 0.001 + i + j));
+              const x = Math.cos(theta) * r;
+              const y = Math.sin(theta) * r;
+              j === 0 ? this.ctx.moveTo(x, y) : this.ctx.lineTo(x, y);
+            }
+            this.ctx.closePath();
+
+            this.ctx.fillStyle = `hsl(${(t * 0.02 + i * 360 / segments) % 360}, 80%, 60%)`;
+            this.ctx.fill();
+            this.ctx.restore();
+          }
+
+          this.animationId = requestAnimationFrame(ts => this.draw(ts));
+        }
+
+        regenerate() {
+          if (this.ctx) {
+            this.ctx.clearRect(0, 0, this.w, this.h);
+          }
+        }
+      }
+
+      @NgModule({
+        imports: [BrowserModule],
+        declarations: [AppComponent],
+        bootstrap: [AppComponent]
+      })
+      class AppModule {}
+
+      platformBrowserDynamic().bootstrapModule(AppModule);
+    })(window.ng);
+  </script>
+</body>
+</html>
