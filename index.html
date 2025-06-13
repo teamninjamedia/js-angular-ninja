@@ -8,10 +8,10 @@
     body, html { margin: 0; padding: 0; overflow: hidden; }
     canvas { display: block; width: 100%; height: 100%; cursor: pointer; }
   </style>
-  <!-- Polyfills y Dependencias -->
-  <script src="https://unpkg.com/zone.js/dist/zone.min.js"></script>
+  <!-- Polyfills y Dependencias UMD -->
   <script src="https://unpkg.com/reflect-metadata@0.1.13/Reflect.js"></script>
-  <script src="https://unpkg.com/rxjs@7.5.0/bundles/rxjs.umd.min.js"></script>
+  <script src="https://unpkg.com/zone.js/dist/zone.min.js"></script>
+  <script src="https://unpkg.com/rxjs/bundles/rxjs.umd.min.js"></script>
   <!-- Angular UMD Bundles -->
   <script src="https://unpkg.com/@angular/core@14.0.0/bundles/core.umd.min.js"></script>
   <script src="https://unpkg.com/@angular/common@14.0.0/bundles/common.umd.min.js"></script>
@@ -23,39 +23,33 @@
   <app-root style="position:absolute;inset:0;"></app-root>
 
   <script>
-    (function(ng, rxjs) {
-      const { Component, NgModule, ViewChild, ElementRef, AfterViewInit, HostListener } = ng.core;
-      const { BrowserModule } = ng.platformBrowser;
-      const { platformBrowserDynamic } = ng.platformBrowserDynamic;
-
-      @Component({
+    (function(ng) {
+      // Definición del componente en JavaScript puro, sin decoradores
+      const AppComponent = ng.core.Component({
         selector: 'app-root',
-        template: `<canvas #canvas (click)="clearCanvas()"></canvas>`,
+        template: `<canvas id="canvas" (click)="clearCanvas()"></canvas>`
       })
-      class AppComponent extends AfterViewInit {
-        @ViewChild('canvas', { static: true }) canvasRef;
-        animationId;
-        ctx;
-        w = 0;
-        h = 0;
-
-        ngAfterViewInit() {
-          const canvas = this.canvasRef.nativeElement;
+      .Class({
+        constructor: function() {
+          this.ctx = null;
+          this.w = 0;
+          this.h = 0;
+          this.animationId = null;
+        },
+        ngAfterViewInit: function() {
+          const canvas = document.getElementById('canvas');
           this.ctx = canvas.getContext('2d');
           this.onResize();
+          window.addEventListener('resize', this.onResize.bind(this));
           this.animate(0);
-          window.addEventListener('resize', () => this.onResize());
-        }
-
-        @HostListener('window:resize') onResize() {
-          const canvas = this.canvasRef.nativeElement;
+        },
+        onResize: function() {
+          const canvas = document.getElementById('canvas');
           this.w = canvas.width = window.innerWidth;
           this.h = canvas.height = window.innerHeight;
-        }
-
-        animate(t) {
+        },
+        animate: function(t) {
           if (!this.ctx) return;
-          // Fondo dinámico
           this.ctx.fillStyle = `hsl(${(t * 0.005) % 360}, 50%, 15%)`;
           this.ctx.fillRect(0, 0, this.w, this.h);
 
@@ -83,23 +77,26 @@
           }
 
           this.animationId = requestAnimationFrame(ts => this.animate(ts));
-        }
-
-        clearCanvas() {
+        },
+        clearCanvas: function() {
           if (this.ctx) this.ctx.clearRect(0, 0, this.w, this.h);
         }
-      }
+      });
 
-      @NgModule({
-        imports: [BrowserModule],
+      // Definición del módulo
+      const AppModule = ng.core.NgModule({
+        imports: [ng.platformBrowser.BrowserModule],
         declarations: [AppComponent],
         bootstrap: [AppComponent]
       })
-      class AppModule {}
+      .Class({ constructor: function() {} });
 
-      platformBrowserDynamic().bootstrapModule(AppModule)
+      // Bootstrap del módulo
+      ng.platformBrowserDynamic.platformBrowserDynamic()
+        .bootstrapModule(AppModule)
         .catch(err => console.error(err));
-    })(window.ng, window.rxjs);
+
+    })(window.ng);
   </script>
 </body>
 </html>
